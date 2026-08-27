@@ -184,13 +184,13 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
           
           {/* 1. SEU CORPO */}
-          <div className="bg-dark-800/40 border border-slate-800 rounded-3xl p-5 flex flex-col h-[540px]">
+          <div className="bg-dark-800/40 border border-slate-800 rounded-3xl p-5 flex flex-col min-h-[500px]">
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">1. Seu Corpo</span>
               {humanImage && <CheckCircle2 className="w-4 h-4 text-brand-500" />}
             </div>
 
-            <div className="flex-1 border-2 border-dashed border-slate-800 hover:border-slate-700 rounded-2xl relative overflow-hidden flex flex-col items-center justify-center bg-dark-900/50">
+            <div className="flex-1 border-2 border-dashed border-slate-800 hover:border-slate-700 rounded-2xl relative overflow-hidden flex flex-col items-center justify-center bg-dark-900/50 min-h-[360px]">
               {humanImage ? (
                 <img src={humanImage} alt="Corpo" className="w-full h-full object-contain" />
               ) : (
@@ -211,8 +211,8 @@ export default function DashboardPage() {
             )}
           </div>
 
-          {/* 2. ROUPA (ABAS: COLAR LINK vs UPLOAD) */}
-          <div className="bg-dark-800/40 border border-slate-800 rounded-3xl p-5 flex flex-col h-[540px]">
+          {/* 2. ROUPA */}
+          <div className="bg-dark-800/40 border border-slate-800 rounded-3xl p-5 flex flex-col min-h-[500px]">
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">2. Peça de Roupa</span>
               {garmentImage && <CheckCircle2 className="w-4 h-4 text-brand-500" />}
@@ -245,7 +245,7 @@ export default function DashboardPage() {
               <div className="flex gap-2 mb-3">
                 <input
                   type="text"
-                  placeholder="Cole o endereço da imagem da roupa..."
+                  placeholder="Cole a URL da imagem da roupa..."
                   value={garmentUrlInput}
                   onChange={(e) => setGarmentUrlInput(e.target.value)}
                   className="flex-1 bg-dark-900 border border-slate-800 focus:border-brand-500 rounded-xl px-3 py-2 text-xs text-slate-200 outline-none"
@@ -256,12 +256,12 @@ export default function DashboardPage() {
                   disabled={loadingExtract || !garmentUrlInput}
                   className="px-3 py-2 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all"
                 >
-                  {loadingExtract ? 'Buscando...' : 'Carregar'}
+                  {loadingExtract ? '...' : 'Carregar'}
                 </button>
               </div>
             )}
 
-            <div className="flex-1 border-2 border-dashed border-slate-800 hover:border-slate-700 rounded-2xl relative overflow-hidden flex flex-col items-center justify-center bg-dark-900/50">
+            <div className="flex-1 border-2 border-dashed border-slate-800 hover:border-slate-700 rounded-2xl relative overflow-hidden flex flex-col items-center justify-center bg-dark-900/50 min-h-[300px]">
               {garmentImage ? (
                 <img src={garmentImage} alt="Roupa" className="w-full h-full object-contain" />
               ) : (
@@ -301,13 +301,13 @@ export default function DashboardPage() {
           </div>
 
           {/* 3. RESULTADO IA */}
-          <div className="bg-dark-800/40 border border-slate-800 rounded-3xl p-5 flex flex-col h-[540px]">
+          <div className="bg-dark-800/40 border border-slate-800 rounded-3xl p-5 flex flex-col min-h-[500px]">
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">3. Resultado IA</span>
               {resultImage && <span className="text-[10px] font-extrabold text-brand-500 px-2 py-0.5 rounded bg-brand-500/10">Pronto</span>}
             </div>
 
-            <div className="flex-1 border-2 border-dashed border-slate-800 rounded-2xl relative overflow-hidden flex flex-col items-center justify-center bg-dark-900/50">
+            <div className="flex-1 border-2 border-dashed border-slate-800 rounded-2xl relative overflow-hidden flex flex-col items-center justify-center bg-dark-900/50 min-h-[360px]">
               {loadingTryOn ? (
                 <div className="flex flex-col items-center gap-3 p-6 text-center">
                   <RefreshCw className="w-8 h-8 text-brand-500 animate-spin" />
