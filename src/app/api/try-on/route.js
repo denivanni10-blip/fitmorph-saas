@@ -43,23 +43,40 @@ export async function POST(req) {
       }
     }
 
+    // Versão oficial e canônica do IDM-VTON no Replicate
     const output = await replicate.run(
-      'cuuupid/idm-vton:c871bb9b046607b680449ec0ddf3827c6d03f3017ea28b1e2e5aa65c6a704eac',
+      'cuuupid/idm-vton:0513734a452173b8173e907e3a59d19a36266e55b48528559432bd21c7d7e985',
       {
         input: {
           human_img: human_img,
           garm_img: garm_img,
-          garment_des: 'clothing item to try on',
+          garment_des: 'clothing item',
           category: category,
-          n_steps: 30,
+          steps: 30,
           seed: 42,
+          crop: false
         },
       }
     );
 
-    const resultImageUrl = Array.isArray(output) ? output[0] : output;
+    let resultImageUrl = null;
+    if (Array.isArray(output)) {
+      resultImageUrl = output[0];
+    } else if (typeof output === 'string') {
+      resultImageUrl = output;
+    } else if (output && typeof output.url === 'function') {
+      resultImageUrl = output.url();
+    } else if (output && output.href) {
+      resultImageUrl = output.href;
+    }
 
-    if (userId && resultImageUrl) {
+    if (!resultImageUrl) {
+      throw new Error('Nenhuma imagem retornada pela IA.');
+    }
+
+    const finalUrl = typeof resultImageUrl === 'object' ? (resultImageUrl.href || String(resultImageUrl)) : String(resultImageUrl);
+
+    if (userId) {
       const { data: profile } = await supabaseAdmin
         .from('profiles')
         .select('credits')
@@ -74,7 +91,7 @@ export async function POST(req) {
       }
     }
 
-    return NextResponse.json({ result: resultImageUrl });
+    return NextResponse.json({ result: finalUrl });
   } catch (error) {
     console.error('Erro na IA:', error);
     return NextResponse.json(
