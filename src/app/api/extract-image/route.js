@@ -5,10 +5,9 @@ export async function POST(req) {
     const { url } = await req.json();
 
     if (!url || !url.startsWith('http')) {
-      return NextResponse.json({ error: 'URL inv√°lida.' }, { status: 400 });
+      return NextResponse.json({ error: 'URL inv·lida.' }, { status: 400 });
     }
 
-    // Busca a imagem diretamente da fonte (Shopee, Shein, CDN, etc)
     const response = await fetch(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -16,7 +15,7 @@ export async function POST(req) {
     });
 
     if (!response.ok) {
-      return NextResponse.json({ error: 'N√£o foi poss√≠vel carregar a imagem do link fornecido.' }, { status: 400 });
+      return NextResponse.json({ error: 'N„o foi possÌvel carregar a imagem do link fornecido.' }, { status: 400 });
     }
 
     const contentType = response.headers.get('content-type') || 'image/jpeg';

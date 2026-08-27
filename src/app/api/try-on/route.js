@@ -1,25 +1,78 @@
 import { NextResponse } from 'next/server';
+import Replicate from 'replicate';
+import { createClient } from '@supabase/supabase-js';
 
-export async function POST(request) {
+const replicate = new Replicate({
+  auth: process.env.REPLICATE_API_TOKEN,
+});
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
+
+export async function POST(req) {
   try {
-    const { humanImage, garmImage } = await request.json();
+    const { human_img, garm_img, userId, category = 'upper_body' } = await req.json();
 
-    if (!humanImage || !garmImage) {
+    if (!human_img || !garm_img) {
       return NextResponse.json(
-        { error: 'Imagens da pessoa e da roupa sÃ£o obrigatÃ³rias.' },
+        { error: 'Envie a foto do corpo e a foto da roupa.' },
         { status: 400 }
       );
     }
 
-    // Simula 3 segundos de processamento da IA
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    if (userId) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('credits')
+        .eq('id', userId)
+        .single();
 
-    // Retorna a imagem do corpo para simular o resultado na tela
-    return NextResponse.json({ resultUrl: humanImage });
+      if (!profile || profile.credits <= 0) {
+        return NextResponse.json(
+          { error: 'Você não tem créditos suficientes.' },
+          { status: 402 }
+        );
+      }
+    }
 
+    const output = await replicate.run(
+      'cuuupid/idm-vton:c871bb9b046607b680449ec0ddf3827c6d03f3017ea28b1e2e5aa65c6a704eac',
+      {
+        input: {
+          human_img: human_img,
+          garm_img: garm_img,
+          garment_des: 'clothing item to try on',
+          category: category,
+          n_steps: 30,
+          seed: 42,
+        },
+      }
+    );
+
+    const resultImageUrl = Array.isArray(output) ? output[0] : output;
+
+    if (userId && resultImageUrl) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('credits')
+        .eq('id', userId)
+        .single();
+
+      if (profile && profile.credits > 0) {
+        await supabase
+          .from('profiles')
+          .update({ credits: profile.credits - 1 })
+          .eq('id', userId);
+      }
+    }
+
+    return NextResponse.json({ result: resultImageUrl });
   } catch (error) {
+    console.error('Erro na geração da IA:', error);
     return NextResponse.json(
-      { error: 'Erro ao simular teste.' },
+      { error: error.message || 'Falha ao processar a prova virtual' },
       { status: 500 }
     );
   }
