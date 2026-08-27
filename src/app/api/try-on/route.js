@@ -6,9 +6,15 @@ const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN,
 });
 
-const supabase = createClient(
+const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  }
 );
 
 export async function POST(req) {
@@ -23,13 +29,13 @@ export async function POST(req) {
     }
 
     if (userId) {
-      const { data: profile } = await supabase
+      const { data: profile } = await supabaseAdmin
         .from('profiles')
         .select('credits')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
-      if (!profile || profile.credits <= 0) {
+      if (profile && typeof profile.credits === 'number' && profile.credits <= 0) {
         return NextResponse.json(
           { error: 'Voce nao tem creditos suficientes.' },
           { status: 402 }
@@ -54,14 +60,14 @@ export async function POST(req) {
     const resultImageUrl = Array.isArray(output) ? output[0] : output;
 
     if (userId && resultImageUrl) {
-      const { data: profile } = await supabase
+      const { data: profile } = await supabaseAdmin
         .from('profiles')
         .select('credits')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
       if (profile && profile.credits > 0) {
-        await supabase
+        await supabaseAdmin
           .from('profiles')
           .update({ credits: profile.credits - 1 })
           .eq('id', userId);
