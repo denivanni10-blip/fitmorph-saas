@@ -26,7 +26,7 @@ export default function DashboardPage() {
   const [garmentImage, setGarmentImage] = useState(null);
   const [resultImage, setResultImage] = useState(null);
 
-  const [garmentMode, setGarmentMode] = useState('upload');
+  const [garmentMode, setGarmentMode] = useState('link');
   const [garmentUrlInput, setGarmentUrlInput] = useState('');
   const [category, setCategory] = useState('upper_body');
 
@@ -154,7 +154,7 @@ export default function DashboardPage() {
               Provador Virtual IA
             </h1>
             <p className="text-xs sm:text-sm text-slate-400 mt-1">
-              Experimente qualquer roupa no seu corpo em segundos.
+              Cole o link da peça ou faça o upload da foto para provar no seu corpo.
             </p>
           </div>
 
@@ -183,7 +183,8 @@ export default function DashboardPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
           
-          <div className="bg-dark-800/40 border border-slate-800 rounded-3xl p-5 flex flex-col h-[520px]">
+          {/* 1. SEU CORPO */}
+          <div className="bg-dark-800/40 border border-slate-800 rounded-3xl p-5 flex flex-col h-[540px]">
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">1. Seu Corpo</span>
               {humanImage && <CheckCircle2 className="w-4 h-4 text-brand-500" />}
@@ -210,23 +211,14 @@ export default function DashboardPage() {
             )}
           </div>
 
-          <div className="bg-dark-800/40 border border-slate-800 rounded-3xl p-5 flex flex-col h-[520px]">
+          {/* 2. ROUPA (ABAS: COLAR LINK vs UPLOAD) */}
+          <div className="bg-dark-800/40 border border-slate-800 rounded-3xl p-5 flex flex-col h-[540px]">
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">2. Peça de Roupa</span>
               {garmentImage && <CheckCircle2 className="w-4 h-4 text-brand-500" />}
             </div>
 
             <div className="grid grid-cols-2 gap-1.5 p-1 bg-dark-900/90 rounded-xl mb-3 border border-slate-800">
-              <button
-                type="button"
-                onClick={() => setGarmentMode('upload')}
-                className={`py-1.5 text-[11px] font-bold rounded-lg flex items-center justify-center gap-1.5 transition-all ${
-                  garmentMode === 'upload' ? 'bg-brand-500 text-black shadow' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <ImageIcon className="w-3.5 h-3.5" />
-                Upload Foto
-              </button>
               <button
                 type="button"
                 onClick={() => setGarmentMode('link')}
@@ -237,13 +229,23 @@ export default function DashboardPage() {
                 <LinkIcon className="w-3.5 h-3.5" />
                 Colar Link
               </button>
+              <button
+                type="button"
+                onClick={() => setGarmentMode('upload')}
+                className={`py-1.5 text-[11px] font-bold rounded-lg flex items-center justify-center gap-1.5 transition-all ${
+                  garmentMode === 'upload' ? 'bg-brand-500 text-black shadow' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <ImageIcon className="w-3.5 h-3.5" />
+                Upload Foto
+              </button>
             </div>
 
             {garmentMode === 'link' && (
               <div className="flex gap-2 mb-3">
                 <input
                   type="text"
-                  placeholder="Cole a URL da imagem da roupa..."
+                  placeholder="Cole o endereço da imagem da roupa..."
                   value={garmentUrlInput}
                   onChange={(e) => setGarmentUrlInput(e.target.value)}
                   className="flex-1 bg-dark-900 border border-slate-800 focus:border-brand-500 rounded-xl px-3 py-2 text-xs text-slate-200 outline-none"
@@ -266,7 +268,7 @@ export default function DashboardPage() {
                 <label className="cursor-pointer flex flex-col items-center justify-center p-6 text-center w-full h-full">
                   <Layers className="w-8 h-8 text-slate-500 mb-2" />
                   <span className="text-xs font-semibold text-slate-300">
-                    {garmentMode === 'upload' ? 'Selecione a foto da peça' : 'Cole o link acima para carregar'}
+                    {garmentMode === 'upload' ? 'Selecione a foto da peça' : 'Cole a URL acima e clique em Carregar'}
                   </span>
                   <span className="text-[10px] text-slate-500 mt-1">Camisetas, calças, saias ou vestidos</span>
                   {garmentMode === 'upload' && (
@@ -298,7 +300,8 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="bg-dark-800/40 border border-slate-800 rounded-3xl p-5 flex flex-col h-[520px]">
+          {/* 3. RESULTADO IA */}
+          <div className="bg-dark-800/40 border border-slate-800 rounded-3xl p-5 flex flex-col h-[540px]">
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">3. Resultado IA</span>
               {resultImage && <span className="text-[10px] font-extrabold text-brand-500 px-2 py-0.5 rounded bg-brand-500/10">Pronto</span>}
