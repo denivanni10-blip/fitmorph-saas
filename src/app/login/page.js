@@ -1,384 +1,144 @@
 ﻿'use client';
 
 import { useState, useEffect } from 'react';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
-import { 
-  Upload, 
-  Sparkles, 
-  Download, 
-  RefreshCw, 
-  Link as LinkIcon, 
-  Image as ImageIcon, 
-  Layers, 
-  CheckCircle2, 
-  AlertCircle 
-} from 'lucide-react';
+import Link from 'next/link';
+import Navbar from '@/components/Navbar';
+import { Sparkles, LogIn, AlertCircle } from 'lucide-react';
 
-export default function DashboardPage() {
+export default function LoginPage() {
   const router = useRouter();
-  const [user, setUser] = useState(null);
-  const [credits, setCredits] = useState(0);
-
-  // Estados das Imagens
-  const [humanImage, setHumanImage] = useState(null);
-  const [garmentImage, setGarmentImage] = useState(null);
-  const [resultImage, setResultImage] = useState(null);
-
-  // Estados de Configuração da Prova
-  const [garmentMode, setGarmentMode] = useState('upload'); // 'upload' ou 'link'
-  const [garmentUrlInput, setGarmentUrlInput] = useState('');
-  const [category, setCategory] = useState('upper_body'); // 'upper_body' | 'lower_body' | 'dresses'
-
-  // Estados de Carregamento
-  const [loadingExtract, setLoadingExtract] = useState(false);
-  const [loadingTryOn, setLoadingTryOn] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push('/login');
-        return;
-      }
-      setUser(user);
+    setMounted(true);
+  }, []);
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('credits')
-        .eq('id', user.id)
-        .single();
-
-      if (profile) {
-        setCredits(profile.credits || 0);
-      }
-    };
-
-    fetchUserData();
-  }, [router]);
-
-  // Upload Manual do Corpo
-  const handleHumanUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setHumanImage(reader.result);
-      reader.readAsDataURL(file);
-    }
-  };
-
-  // Upload Manual da Roupa
-  const handleGarmentUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setGarmentImage(reader.result);
-      reader.readAsDataURL(file);
-    }
-  };
-
-  // Extração da Imagem por Link
-  const handleExtractFromUrl = async () => {
-    if (!garmentUrlInput.trim()) return;
-    setLoadingExtract(true);
-    setErrorMessage('');
-
-    try {
-      const res = await fetch('/api/extract-image', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: garmentUrlInput.trim() }),
-      });
-
-      const data = await res.json();
-      if (res.ok && data.imageBase64) {
-        setGarmentImage(data.imageBase64);
-      } else {
-        setErrorMessage(data.error || 'Erro ao carregar imagem pelo link.');
-      }
-    } catch (err) {
-      setErrorMessage('Erro de conexão ao processar link.');
-    } finally {
-      setLoadingExtract(false);
-    }
-  };
-
-  // Execução do Provador Virtual IA
-  const handleRunTryOn = async () => {
-    if (!humanImage || !garmentImage) {
-      setErrorMessage('Envie a foto do seu corpo e a foto da roupa para continuar.');
+  const handleAuth = async (e) => {
+    e.preventDefault();
+    if (!email || !password) {
+      setErrorMessage('Preencha todos os campos.');
       return;
     }
 
-    if (credits <= 0) {
-      router.push('/planos');
-      return;
-    }
-
-    setLoadingTryOn(true);
+    setLoading(true);
     setErrorMessage('');
-    setResultImage(null);
 
     try {
-      const res = await fetch('/api/try-on', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          human_img: humanImage,
-          garm_img: garmentImage,
-          category: category,
-          userId: user?.id,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok && data.result) {
-        setResultImage(data.result);
-        setCredits((prev) => Math.max(0, prev - 1));
+      if (isSignUp) {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+        if (error) throw error;
+        router.push('/dashboard');
+        router.refresh();
       } else {
-        setErrorMessage(data.error || 'Falha ao processar o provador virtual.');
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
+        router.push('/dashboard');
+        router.refresh();
       }
     } catch (err) {
-      setErrorMessage('Erro de servidor ao processar a prova virtual.');
+      setErrorMessage(err.message || 'Erro ao realizar autenticação.');
     } finally {
-      setLoadingTryOn(false);
+      setLoading(false);
     }
   };
+
+  if (!mounted) return null;
 
   return (
     <div className="min-h-screen flex flex-col bg-dark-900 text-slate-100">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-28 pb-16">
-        
-        {/* Cabeçalho do Provador */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white flex items-center gap-2.5">
-              <Sparkles className="w-6 h-6 text-brand-500" />
-              Provador Virtual IA
+      <main className="flex-1 flex items-center justify-center px-4 py-28">
+        <div className="w-full max-w-md bg-dark-800/60 border border-slate-800 rounded-3xl p-8 shadow-2xl backdrop-blur-xl">
+          <div className="text-center mb-8">
+            <div className="inline-flex p-3 rounded-2xl bg-brand-500/10 text-brand-500 mb-3">
+              <Sparkles className="w-6 h-6" />
+            </div>
+            <h1 className="text-2xl font-extrabold text-white">
+              {isSignUp ? 'Criar Conta' : 'Acessar FitMorph'}
             </h1>
-            <p className="text-xs sm:text-sm text-slate-400 mt-1">
-              Experimente qualquer roupa de lojas online no seu corpo em segundos.
+            <p className="text-xs text-slate-400 mt-1">
+              {isSignUp
+                ? 'Comece agora a experimentar roupas com IA'
+                : 'Entre com seus dados para acessar o provador'}
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="px-3.5 py-1.5 rounded-xl bg-dark-800 border border-slate-700/80 text-xs font-bold flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
-              <span className="text-slate-300">Saldo:</span>
-              <span className="text-brand-500">{credits} Créditos</span>
+          {errorMessage && (
+            <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-3">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{errorMessage}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleAuth} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase tracking-wider">
+                E-mail
+              </label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="seuemail@exemplo.com"
+                className="w-full bg-dark-900 border border-slate-800 focus:border-brand-500 rounded-xl px-4 py-3 text-xs text-white outline-none transition-all"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase tracking-wider">
+                Senha
+              </label>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full bg-dark-900 border border-slate-800 focus:border-brand-500 rounded-xl px-4 py-3 text-xs text-white outline-none transition-all"
+              />
             </div>
 
             <button
-              onClick={() => router.push('/planos')}
-              className="px-3.5 py-1.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-black font-extrabold text-xs transition-all shadow-md shadow-brand-500/10"
+              type="submit"
+              disabled={loading}
+              className="w-full py-3.5 rounded-xl bg-brand-500 hover:bg-brand-600 disabled:opacity-50 text-black font-extrabold text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-brand-500/10 mt-2"
             >
-              Recarregar
+              <LogIn className="w-4 h-4" />
+              {loading ? 'Processando...' : isSignUp ? 'Criar Conta' : 'Entrar na Conta'}
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <button
+              type="button"
+              onClick={() => {
+                setIsSignUp(!isSignUp);
+                setErrorMessage('');
+              }}
+              className="text-xs text-slate-400 hover:text-white transition-colors"
+            >
+              {isSignUp
+                ? 'Já possui uma conta? Faça login'
+                : 'Não tem uma conta? Crie gratuitamente'}
             </button>
           </div>
         </div>
-
-        {/* Mensagem de Erro Global */}
-        {errorMessage && (
-          <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-3">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{errorMessage}</span>
-          </div>
-        )}
-
-        {/* Grade Principal dos 3 Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-          
-          {/* CARD 1: FOTO DO CORPO */}
-          <div className="bg-dark-800/40 border border-slate-800 rounded-3xl p-5 flex flex-col h-[520px]">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">1. Seu Corpo</span>
-              {humanImage && <CheckCircle2 className="w-4 h-4 text-brand-500" />}
-            </div>
-
-            <div className="flex-1 border-2 border-dashed border-slate-800 hover:border-slate-700 rounded-2xl relative overflow-hidden flex flex-col items-center justify-center bg-dark-900/50">
-              {humanImage ? (
-                <img src={humanImage} alt="Corpo" className="w-full h-full object-contain" />
-              ) : (
-                <label className="cursor-pointer flex flex-col items-center justify-center p-6 text-center w-full h-full">
-                  <Upload className="w-8 h-8 text-slate-500 mb-2" />
-                  <span className="text-xs font-semibold text-slate-300">Carregar foto de corpo inteiro</span>
-                  <span className="text-[10px] text-slate-500 mt-1">JPEG ou PNG (Frente clara)</span>
-                  <input type="file" accept="image/*" className="hidden" onChange={handleHumanUpload} />
-                </label>
-              )}
-            </div>
-
-            {humanImage && (
-              <label className="mt-3 py-2 text-center text-xs font-bold text-slate-400 hover:text-white cursor-pointer transition-all">
-                Trocar Foto
-                <input type="file" accept="image/*" className="hidden" onChange={handleHumanUpload} />
-              </label>
-            )}
-          </div>
-
-          {/* CARD 2: ROUPA (COM ABAS UPLOAD VS LINK) */}
-          <div className="bg-dark-800/40 border border-slate-800 rounded-3xl p-5 flex flex-col h-[520px]">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">2. Peça de Roupa</span>
-              {garmentImage && <CheckCircle2 className="w-4 h-4 text-brand-500" />}
-            </div>
-
-            {/* Alternador de Modo */}
-            <div className="grid grid-cols-2 gap-1.5 p-1 bg-dark-900/90 rounded-xl mb-3 border border-slate-800">
-              <button
-                type="button"
-                onClick={() => setGarmentMode('upload')}
-                className={`py-1.5 text-[11px] font-bold rounded-lg flex items-center justify-center gap-1.5 transition-all ${
-                  garmentMode === 'upload' ? 'bg-brand-500 text-black shadow' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <ImageIcon className="w-3.5 h-3.5" />
-                Upload Foto
-              </button>
-              <button
-                type="button"
-                onClick={() => setGarmentMode('link')}
-                className={`py-1.5 text-[11px] font-bold rounded-lg flex items-center justify-center gap-1.5 transition-all ${
-                  garmentMode === 'link' ? 'bg-brand-500 text-black shadow' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <LinkIcon className="w-3.5 h-3.5" />
-                Colar Link
-              </button>
-            </div>
-
-            {/* Entrada de Link */}
-            {garmentMode === 'link' && (
-              <div className="flex gap-2 mb-3">
-                <input
-                  type="text"
-                  placeholder="Cole o link da imagem da roupa..."
-                  value={garmentUrlInput}
-                  onChange={(e) => setGarmentUrlInput(e.target.value)}
-                  className="flex-1 bg-dark-900 border border-slate-800 focus:border-brand-500 rounded-xl px-3 py-2 text-xs text-slate-200 outline-none"
-                />
-                <button
-                  type="button"
-                  onClick={handleExtractFromUrl}
-                  disabled={loadingExtract || !garmentUrlInput}
-                  className="px-3 py-2 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all"
-                >
-                  {loadingExtract ? 'Buscando...' : 'Carregar'}
-                </button>
-              </div>
-            )}
-
-            {/* Prévia da Roupa */}
-            <div className="flex-1 border-2 border-dashed border-slate-800 hover:border-slate-700 rounded-2xl relative overflow-hidden flex flex-col items-center justify-center bg-dark-900/50">
-              {garmentImage ? (
-                <img src={garmentImage} alt="Roupa" className="w-full h-full object-contain" />
-              ) : (
-                <label className="cursor-pointer flex flex-col items-center justify-center p-6 text-center w-full h-full">
-                  <Layers className="w-8 h-8 text-slate-500 mb-2" />
-                  <span className="text-xs font-semibold text-slate-300">
-                    {garmentMode === 'upload' ? 'Selecione a foto da peça' : 'Cole o link acima para carregar'}
-                  </span>
-                  <span className="text-[10px] text-slate-500 mt-1">Camisetas, calças, saias ou vestidos</span>
-                  {garmentMode === 'upload' && (
-                    <input type="file" accept="image/*" className="hidden" onChange={handleGarmentUpload} />
-                  )}
-                </label>
-              )}
-            </div>
-
-            {/* Seletor de Categoria da Peça */}
-            <div className="mt-3 grid grid-cols-3 gap-1.5">
-              {[
-                { id: 'upper_body', label: 'Superior' },
-                { id: 'lower_body', label: 'Inferior' },
-                { id: 'dresses', label: 'Vestido' },
-              ].map((cat) => (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => setCategory(cat.id)}
-                  className={`py-1.5 rounded-lg text-[10px] font-bold border transition-all ${
-                    category === cat.id
-                      ? 'bg-brand-500/10 border-brand-500 text-brand-500'
-                      : 'bg-dark-900/60 border-slate-800 text-slate-400 hover:border-slate-700'
-                  }`}
-                >
-                  {cat.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* CARD 3: RESULTADO FINAL IA */}
-          <div className="bg-dark-800/40 border border-slate-800 rounded-3xl p-5 flex flex-col h-[520px]">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">3. Resultado IA</span>
-              {resultImage && <span className="text-[10px] font-extrabold text-brand-500 px-2 py-0.5 rounded bg-brand-500/10">Pronto</span>}
-            </div>
-
-            <div className="flex-1 border-2 border-dashed border-slate-800 rounded-2xl relative overflow-hidden flex flex-col items-center justify-center bg-dark-900/50">
-              {loadingTryOn ? (
-                <div className="flex flex-col items-center gap-3 p-6 text-center">
-                  <RefreshCw className="w-8 h-8 text-brand-500 animate-spin" />
-                  <span className="text-xs font-bold text-white">Vestindo a roupa no seu corpo...</span>
-                  <span className="text-[10px] text-slate-400">Ajustando caimento e sombreamento</span>
-                </div>
-              ) : resultImage ? (
-                <img src={resultImage} alt="Resultado IA" className="w-full h-full object-contain" />
-              ) : (
-                <div className="flex flex-col items-center gap-2 p-6 text-center text-slate-500">
-                  <Sparkles className="w-8 h-8 opacity-40 mb-1" />
-                  <span className="text-xs font-medium">O resultado aparecerá aqui</span>
-                </div>
-              )}
-            </div>
-
-            {/* Ações do Resultado */}
-            <div className="mt-3 flex gap-2">
-              {resultImage ? (
-                <>
-                  <a
-                    href={resultImage}
-                    target="_blank"
-                    download="fitmorph-resultado.png"
-                    className="flex-1 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-black font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    Baixar Foto
-                  </a>
-                  <button
-                    onClick={() => setResultImage(null)}
-                    className="px-4 py-2.5 rounded-xl bg-dark-900 border border-slate-800 hover:border-slate-700 text-xs font-bold text-slate-300 transition-all"
-                  >
-                    Nova Prova
-                  </button>
-                </>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleRunTryOn}
-                  disabled={loadingTryOn || !humanImage || !garmentImage}
-                  className="w-full py-3 rounded-xl bg-brand-500 hover:bg-brand-600 disabled:opacity-40 disabled:cursor-not-allowed text-black font-black text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-brand-500/10"
-                >
-                  <Sparkles className="w-4 h-4 fill-black" />
-                  {loadingTryOn ? 'Processando Prova...' : 'Provar Roupa Agora (-1 Crédito)'}
-                </button>
-              )}
-            </div>
-
-          </div>
-
-        </div>
-
       </main>
-
-      <Footer />
     </div>
   );
 }

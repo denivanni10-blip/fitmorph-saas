@@ -4,24 +4,31 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Sparkles, LogOut, LogIn, CreditCard, Shirt } from 'lucide-react';
+import { LogOut, LogIn, CreditCard, Shirt } from 'lucide-react';
 
 export default function Navbar() {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [credits, setCredits] = useState(0);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('credits')
-          .eq('id', user.id)
-          .single();
-        if (profile) setCredits(profile.credits || 0);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        setUser(user);
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('credits')
+            .eq('id', user.id)
+            .single();
+          if (profile) setCredits(profile.credits || 0);
+        }
+      } catch (e) {
+        console.error(e);
       }
     };
 
@@ -69,19 +76,21 @@ export default function Navbar() {
             Provador 3D
           </Link>
           <Link href="/planos" className="text-xs font-semibold text-slate-300 hover:text-white transition-colors">
-            Planos & Creditos
+            Planos & Créditos
           </Link>
         </nav>
 
         <div className="flex items-center gap-3">
-          {user ? (
+          {!mounted ? (
+            <div className="w-20 h-8 bg-dark-800 rounded-xl animate-pulse" />
+          ) : user ? (
             <>
               <Link 
                 href="/planos"
                 className="px-3 py-1.5 rounded-xl bg-dark-800 border border-slate-700 hover:border-slate-600 text-xs font-bold flex items-center gap-2 text-slate-200 transition-all"
               >
                 <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
-                <span>{credits} Creditos</span>
+                <span>{credits} Créditos</span>
               </Link>
 
               <Link
@@ -89,7 +98,7 @@ export default function Navbar() {
                 className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-black font-extrabold text-xs transition-all shadow-md shadow-brand-500/10"
               >
                 <CreditCard className="w-3.5 h-3.5" />
-                Comprar Creditos
+                Comprar Créditos
               </Link>
 
               <button
