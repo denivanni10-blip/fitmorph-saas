@@ -1,0 +1,55 @@
+   Ôû¦ Next.js 14.1.0
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+Failed to compile.
+System.Management.Automation.RemoteException
+./src/components/Navbar.js
+Error: Failed to read source code from C:\Users\Visitante\Desktop\Saas\src\components\Navbar.js
+System.Management.Automation.RemoteException
+Caused by:
+    stream did not contain valid UTF-8
+System.Management.Automation.RemoteException
+Import trace for requested module:
+./src/components/Navbar.js
+./src/app/avatar-builder/page.js
+System.Management.Automation.RemoteException
+./src/app/api/extract-image/route.js
+Error: Failed to read source code from C:\Users\Visitante\Desktop\Saas\src\app\api\extract-image\route.js
+System.Management.Automation.RemoteException
+Caused by:
+    stream did not contain valid UTF-8
+System.Management.Automation.RemoteException
+Import trace for requested module:
+./src/app/api/extract-image/route.js
+System.Management.Automation.RemoteException
+./src/app/api/try-on/route.js
+Error: Failed to read source code from C:\Users\Visitante\Desktop\Saas\src\app\api\try-on\route.js
+System.Management.Automation.RemoteException
+Caused by:
+    stream did not contain valid UTF-8
+System.Management.Automation.RemoteException
+Import trace for requested module:
+./src/app/api/try-on/route.js
+System.Management.Automation.RemoteException
+./src/app/dashboard/page.js
+Error: Failed to read source code from C:\Users\Visitante\Desktop\Saas\src\app\dashboard\page.js
+System.Management.Automation.RemoteException
+Caused by:
+    stream did not contain valid UTF-8
+System.Management.Automation.RemoteException
+Import trace for requested module:
+./src/app/dashboard/page.js
+System.Management.Automation.RemoteException
+./src/components/Navbar.js
+Error: Failed to read source code from C:\Users\Visitante\Desktop\Saas\src\components\Navbar.js
+System.Management.Automation.RemoteException
+Caused by:
+    stream did not contain valid UTF-8
+System.Management.Automation.RemoteException
+Import trace for requested module:
+./src/components/Navbar.js
+./src/app/page.js
+System.Management.Automation.RemoteException
+System.Management.Automation.RemoteException
+> Build failed because of webpack errors

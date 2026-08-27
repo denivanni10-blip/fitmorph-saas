@@ -1,4 +1,4 @@
-import { Shirt } from 'lucide-react';
+﻿import { Shirt } from 'lucide-react';
 
 export default function Footer() {
   return (

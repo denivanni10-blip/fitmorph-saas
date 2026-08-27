@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server';
+ï»¿import { NextResponse } from 'next/server';
 
 export async function POST(req) {
   try {
     const { url } = await req.json();
 
     if (!url || !url.startsWith('http')) {
-      return NextResponse.json({ error: 'URL inválida.' }, { status: 400 });
+      return NextResponse.json({ error: 'URL invï¿½lida.' }, { status: 400 });
     }
 
     const response = await fetch(url, {
@@ -15,7 +15,7 @@ export async function POST(req) {
     });
 
     if (!response.ok) {
-      return NextResponse.json({ error: 'Não foi possível carregar a imagem do link fornecido.' }, { status: 400 });
+      return NextResponse.json({ error: 'Nï¿½o foi possï¿½vel carregar a imagem do link fornecido.' }, { status: 400 });
     }
 
     const contentType = response.headers.get('content-type') || 'image/jpeg';

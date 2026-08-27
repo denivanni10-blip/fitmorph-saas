@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+ï»¿import { NextResponse } from 'next/server';
 import Replicate from 'replicate';
 import { createClient } from '@supabase/supabase-js';
 
@@ -31,7 +31,7 @@ export async function POST(req) {
 
       if (!profile || profile.credits <= 0) {
         return NextResponse.json(
-          { error: 'Você não tem créditos suficientes.' },
+          { error: 'Voce nao tem creditos suficientes.' },
           { status: 402 }
         );
       }
@@ -70,9 +70,9 @@ export async function POST(req) {
 
     return NextResponse.json({ result: resultImageUrl });
   } catch (error) {
-    console.error('Erro na geração da IA:', error);
+    console.error('Erro na IA:', error);
     return NextResponse.json(
-      { error: error.message || 'Falha ao processar a prova virtual' },
+      { error: error.message || 'Falha ao processar prova virtual.' },
       { status: 500 }
     );
   }

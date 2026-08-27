@@ -1,4 +1,4 @@
-'use client';
+ï»¿'use client';
 
 import { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
@@ -94,7 +94,7 @@ export default function DashboardPage() {
         setErrorMessage(data.error || 'Erro ao carregar imagem pelo link.');
       }
     } catch (err) {
-      setErrorMessage('Erro de conexão ao processar link.');
+      setErrorMessage('Erro de conexao ao processar link.');
     } finally {
       setLoadingExtract(false);
     }
@@ -102,7 +102,7 @@ export default function DashboardPage() {
 
   const handleRunTryOn = async () => {
     if (!humanImage || !garmentImage) {
-      setErrorMessage('Envie a foto do seu corpo e a foto da roupa para continuar.');
+      setErrorMessage('Envie a foto do seu corpo e a foto da roupa.');
       return;
     }
 
@@ -154,7 +154,7 @@ export default function DashboardPage() {
               Provador Virtual IA
             </h1>
             <p className="text-xs sm:text-sm text-slate-400 mt-1">
-              Cole o link da peça ou faça o upload da foto para provar no seu corpo.
+              Cole o link da peca ou faca upload da foto para provar no seu corpo.
             </p>
           </div>
 
@@ -162,7 +162,7 @@ export default function DashboardPage() {
             <div className="px-3.5 py-1.5 rounded-xl bg-dark-800 border border-slate-700/80 text-xs font-bold flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
               <span className="text-slate-300">Saldo:</span>
-              <span className="text-brand-500">{credits} Créditos</span>
+              <span className="text-brand-500">{credits} Creditos</span>
             </div>
 
             <button
@@ -214,7 +214,7 @@ export default function DashboardPage() {
           {/* 2. ROUPA */}
           <div className="bg-dark-800/40 border border-slate-800 rounded-3xl p-5 flex flex-col min-h-[500px]">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">2. Peça de Roupa</span>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">2. Peca de Roupa</span>
               {garmentImage && <CheckCircle2 className="w-4 h-4 text-brand-500" />}
             </div>
 
@@ -268,9 +268,9 @@ export default function DashboardPage() {
                 <label className="cursor-pointer flex flex-col items-center justify-center p-6 text-center w-full h-full">
                   <Layers className="w-8 h-8 text-slate-500 mb-2" />
                   <span className="text-xs font-semibold text-slate-300">
-                    {garmentMode === 'upload' ? 'Selecione a foto da peça' : 'Cole a URL acima e clique em Carregar'}
+                    {garmentMode === 'upload' ? 'Selecione a foto da peca' : 'Cole a URL acima e clique em Carregar'}
                   </span>
-                  <span className="text-[10px] text-slate-500 mt-1">Camisetas, calças, saias ou vestidos</span>
+                  <span className="text-[10px] text-slate-500 mt-1">Camisetas, calcas, saias ou vestidos</span>
                   {garmentMode === 'upload' && (
                     <input type="file" accept="image/*" className="hidden" onChange={handleGarmentUpload} />
                   )}
@@ -319,7 +319,7 @@ export default function DashboardPage() {
               ) : (
                 <div className="flex flex-col items-center gap-2 p-6 text-center text-slate-500">
                   <Sparkles className="w-8 h-8 opacity-40 mb-1" />
-                  <span className="text-xs font-medium">O resultado aparecerá aqui</span>
+                  <span className="text-xs font-medium">O resultado aparecera aqui</span>
                 </div>
               )}
             </div>
@@ -351,7 +351,7 @@ export default function DashboardPage() {
                   className="w-full py-3 rounded-xl bg-brand-500 hover:bg-brand-600 disabled:opacity-40 disabled:cursor-not-allowed text-black font-black text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-brand-500/10"
                 >
                   <Sparkles className="w-4 h-4 fill-black" />
-                  {loadingTryOn ? 'Processando Prova...' : 'Provar Roupa Agora (-1 Crédito)'}
+                  {loadingTryOn ? 'Processando Prova...' : 'Provar Roupa Agora (-1 Credito)'}
                 </button>
               )}
             </div>
