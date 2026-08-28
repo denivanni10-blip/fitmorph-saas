@@ -49,9 +49,8 @@ export default function PlanosPage() {
               </li>
             </ul>
 
-            {/* Substitua o # pelo seu link de checkout, ex: https://pay.kiwify.com.br/xxxxx */}
             <a 
-              href="#" 
+              href="https://pay.kiwify.com.br/esrXRjz" 
               target="_blank"
               className="w-full py-3.5 rounded-xl bg-dark-900 border border-slate-700 hover:bg-slate-800 text-white font-extrabold text-sm flex items-center justify-center transition-all"
             >
@@ -90,9 +89,8 @@ export default function PlanosPage() {
               </li>
             </ul>
 
-            {/* Substitua o # pelo seu link de checkout */}
             <a 
-              href="#"
+              href="https://pay.kiwify.com.br/gXxqx6g"
               target="_blank"
               className="w-full py-3.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-black font-extrabold text-sm flex items-center justify-center transition-all shadow-lg shadow-brand-500/20"
             >
